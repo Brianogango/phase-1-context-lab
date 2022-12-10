@@ -1,68 +1,90 @@
-/* Your Code Here */
-function createEmployeeRecord(array){
-    return {
-        firstName: array[0],
-        familyName: array[1],
-        title: array[2],
-        payPerHour: array[3],
+let createEmployeeRecord =function(recordArray){
+    let testEmployee={
+        firstName: recordArray[0],
+        familyName: recordArray[1],
+        title: recordArray[2],
+        payPerHour: recordArray[3],
         timeInEvents: [],
-        timeOutEvents: []
-    }
+        timeOutEvents: [],
+    };
+    return testEmployee
 }
-//          createEmployeeRecords
-function createEmployeeRecords(arrayOfArrays){
-    return arrayOfArrays.map(array => createEmployeeRecord(array))
+
+let createEmployeeRecords = function(employees){
+	let records = [];
+	employees.forEach(function(employee){
+		records.push(createEmployeeRecord(employee))
+	});
+	return records;
 }
-//          createTimeInEvent
-function createTimeInEvent(employeeRecord, dateStamp){
-    let [date, hour] = dateStamp.split(' ')
-    employeeRecord.timeInEvents.push({
-        type: "TimeIn",
-        hour: parseInt(hour, 10),
-        date
-    })
-    return employeeRecord
-}
-//          createTimeOutEvent
-function createTimeOutEvent(employeeRecord, dateStamp){
-    let [date, hour] = dateStamp.split(' ')
-    employeeRecord.timeOutEvents.push({
-        type: "TimeOut",
-        hour: parseInt(hour, 10),
-        date
-    })
-    return employeeRecord
-}
-//          hoursWorkedOnDate
-function hoursWorkedOnDate(employeeRecord, date){
-    let timeIn = employeeRecord.timeInEvents.find(timeIn => timeIn.date === date)
-    let timeOut = employeeRecord.timeOutEvents.find(timeOut => timeOut.date === date)
-    return (timeOut.hour - timeIn.hour) / 100
-}
-//          wagesEarnedOnDate
-function wagesEarnedOnDate(employeeRecord, date){
-    return hoursWorkedOnDate(employeeRecord, date) * employeeRecord.payPerHour
-}
-//          allWagesFor
-function allWagesFor(employeeRecord){
-    let dates = employeeRecord.timeInEvents.map(timeIn => timeIn.date)
-    let wages = dates.map(date => wagesEarnedOnDate(employeeRecord, date))
-    return wages.reduce((total, wage) => total + wage)
-}
-//          findEmployeeByFirstName
-function calculatePayroll(arrayOfEmployeeRecords){
-    return arrayOfEmployeeRecords.reduce((total, employeeRecord) => total + allWagesFor(employeeRecord), 0)
-}
+
+  let createTimeInEvent = function(date){
+   let yourDate = date.split(" ");
+   let inTime = {
+     type: "TimeIn",
+     hour: parseInt(yourDate[1]),
+     date: yourDate[0],
+   };
+ this.timeInEvents = [...this.timeInEvents, inTime];
+ return this;
+ }
+
+  let createTimeOutEvent = function(date){
+   let yourDate = date.split(" ");
+   let outTime = {
+     type: "TimeOut",
+     hour: parseInt(yourDate[1]),
+     date: yourDate[0],
+   };
+
+   this.timeOutEvents = [...this.timeOutEvents, outTime];
+   return this;
+ }
+
+
+ const hoursWorkedOnDate = function(date){
+ for (let i = 0; i < this.timeInEvents.length; i++) {
+   if (date === this.timeInEvents[i].date) {
+     let arrivalTime = this.timeInEvents[i].hour;
+     let departureTime = this.timeOutEvents[i].hour;
+     let timeTaken = departureTime - arrivalTime;
+     return timeTaken / 100;
+   }
+ }
+ }
+
+
+ const wagesEarnedOnDate = function(date){
+   let timeTaken = hoursWorkedOnDate.call(this, date);
+   return timeTaken * this.payPerHour;
+ }
+
+
+ let findEmployeeByFirstName = function(srcArray,firstName){
+ return srcArray.find(function(rec){
+ return rec.firstName === firstName;
+ })
+
+ }
+
+
 
 const allWagesFor = function () {
     const eligibleDates = this.timeInEvents.map(function (e) {
         return e.date
     })
-
     const payable = eligibleDates.reduce(function (memo, d) {
         return memo + wagesEarnedOnDate.call(this, d)
     }.bind(this), 0) // <== Hm, why did we need to add bind() there? We'll discuss soon!
-
     return payable
 }
 
+let calculatePayroll = function(records){
+    let employeeTotal = records.map((employee) => {
+      return allWagesFor.call(employee)
+  });
+  let payroll = employeeTotal.reduce((total, currentValue) => {
+    return total + currentValue;
+  }, 0);
+  return payroll;
+}
